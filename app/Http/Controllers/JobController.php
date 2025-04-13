@@ -4,9 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Job;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 
-class JobController extends Controller
+class JobController extends Controller implements HasMiddleware
 {
+    public static function middleware()
+    {
+        return [
+            new Middleware('auth:sanctum', except:['index','show'])
+        ];
+    }
     public function index()
     {
         return Job::with(['user','company'])->latest()->paginate(10);
@@ -24,11 +33,9 @@ class JobController extends Controller
                         'location' => ['required','string'],
                     ]);
 
-
-    $job = Job::create($validatedData);
+    $job = $request->user()->jobs()->create($validatedData);
+    //$job = Job::create($validatedData);
     return $job;
-      // $job = $request->user()->posts()->create($validatedData);
-       //return  ['post' => $post, 'user' => $post->user];
     }
 
 
@@ -39,7 +46,7 @@ class JobController extends Controller
 
     public function update(Request $request, Job $job)
     {
-        //Gate::authorize('modify', $job);
+        Gate::authorize('modify', $job);
 
         $validatedData =  $request->validate([
                 'company_id' => ['required','exists:companies,id'],
@@ -59,7 +66,7 @@ class JobController extends Controller
 
     public function destroy(Job $job)
     {
-        //Gate::authorize('modify', $company);
+        Gate::authorize('modify', $job);
 
         $job->delete();
 

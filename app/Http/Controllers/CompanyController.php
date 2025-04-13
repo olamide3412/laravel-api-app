@@ -6,6 +6,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 
 class CompanyController extends Controller implements HasMiddleware
 {
@@ -57,7 +58,7 @@ class CompanyController extends Controller implements HasMiddleware
 
     public function update(Request $request, Company $company)
     {
-        //Gate::authorize('modify', $company);
+        Gate::authorize('modify', $company);
 
         $validatedData =  $request->validate([
                 'name' => ['required','string'],
@@ -74,7 +75,7 @@ class CompanyController extends Controller implements HasMiddleware
 
     public function destroy(Company $company)
     {
-        //Gate::authorize('modify', $company);
+        Gate::authorize('modify', $company);
 
         $company->delete();
 
