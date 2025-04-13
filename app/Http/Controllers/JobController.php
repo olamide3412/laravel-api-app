@@ -16,9 +16,25 @@ class JobController extends Controller implements HasMiddleware
             new Middleware('auth:sanctum', except:['index','show'])
         ];
     }
-    public function index()
+    public function index(Request $request)
     {
-        return Job::with(['user','company'])->latest()->paginate(10);
+        $query = Job::with(['user', 'company'])->latest();
+
+        // Apply filters based on query params
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+
+        if ($request->filled('location')) {
+            $query->where('location', 'like', '%' . $request->location . '%');
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        return $query->paginate(10);
+        //return Job::with(['user','company'])->latest()->paginate(10);
     }
 
 
